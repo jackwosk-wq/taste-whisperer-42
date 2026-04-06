@@ -20,7 +20,7 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
   };
 
   const navLinks = [
-    { to: "/", label: "Discover", icon: Compass },
+    { to: "/discover", label: "Discover", icon: Compass },
     { to: "/traveler", label: "Traveler Mode", icon: MapPin },
     { to: "/saved", label: "Saved", icon: Heart },
   ];
