@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ChatPanel from "@/components/ChatPanel";
 import RestaurantCard from "@/components/RestaurantCard";
-import HeroSection from "@/components/HeroSection";
+
 import MapView from "@/components/MapView";
 import { restaurants, getRestaurantsByCity, type City } from "@/data/restaurants";
 
@@ -22,7 +22,7 @@ export default function DiscoverPage({ selectedCity, onCityChange }: DiscoverPag
 
   return (
     <div>
-      <HeroSection selectedCity={selectedCity} onCityChange={onCityChange} />
+      
 
       <section id="discover" className="container pb-16 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
