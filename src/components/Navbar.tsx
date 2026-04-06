@@ -1,0 +1,123 @@
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { MapPin, Moon, Sun, Heart, Compass, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cities, type City } from "@/data/restaurants";
+
+interface NavbarProps {
+  selectedCity: City;
+  onCityChange: (city: City) => void;
+}
+
+export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
+  const [dark, setDark] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleDark = () => {
+    setDark(!dark);
+    document.documentElement.classList.toggle("dark");
+  };
+
+  const navLinks = [
+    { to: "/", label: "Discover", icon: Compass },
+    { to: "/traveler", label: "Traveler Mode", icon: MapPin },
+    { to: "/saved", label: "Saved", icon: Heart },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-6">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-2xl font-heading font-bold gradient-text">Tasterra</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  location.pathname === to
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* City selector */}
+          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted p-1">
+            {cities.map(city => (
+              <button
+                key={city}
+                onClick={() => onCityChange(city)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                  selectedCity === city
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={toggleDark} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
+          <Link to="/auth">
+            <Button size="sm" className="gradient-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-shadow">
+              Get Early Access
+            </Button>
+          </Link>
+
+          <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-border bg-background p-4 space-y-2">
+          {navLinks.map(({ to, label, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              onClick={() => setMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === to
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Link>
+          ))}
+          <div className="flex flex-wrap gap-2 pt-2 px-4">
+            {cities.map(city => (
+              <button
+                key={city}
+                onClick={() => { onCityChange(city); setMenuOpen(false); }}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                  selectedCity === city
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
