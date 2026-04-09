@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { MapPin, Moon, Sun, Heart, Compass, Menu, X, LogOut } from "lucide-react";
+import { MapPin, Moon, Sun, Heart, Compass, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cities, type City } from "@/data/restaurants";
 import { useAuth } from "@/context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   selectedCity: City;
