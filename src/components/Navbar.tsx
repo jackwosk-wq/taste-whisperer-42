@@ -76,7 +76,7 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
           <div className="hidden sm:block relative" ref={cityDropdownRef}>
             <button
               onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full gradient-primary text-primary-foreground text-sm font-semibold shadow-md transition-shadow hover:shadow-lg"
             >
               <MapPin className="h-3.5 w-3.5 text-primary" />
               {selectedCity}
