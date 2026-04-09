@@ -13,7 +13,7 @@ interface DiscoverPageProps {
 export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const firstName = user?.name?.split(" ")[0] || "there";
+  const firstName = user?.name ? user.name.split(" ")[0].charAt(0).toUpperCase() + user.name.split(" ")[0].slice(1) : "there";
 
   const handleSend = (message: string) => {
     if (!message.trim()) return;
