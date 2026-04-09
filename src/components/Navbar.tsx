@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { MapPin, Moon, Sun, Heart, Compass, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { MapPin, Moon, Sun, Heart, Compass, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cities, type City } from "@/data/restaurants";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
   selectedCity: City;
@@ -13,6 +14,13 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/auth");
+  };
 
   const toggleDark = () => {
     setDark(!dark);
@@ -71,11 +79,25 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
 
-          <Link to="/auth">
-            <Button size="sm" className="gradient-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-shadow">
-              Get Early Access
-            </Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-sm font-medium text-foreground">
+                <div className="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                {user.name.split(" ")[0]}
+              </div>
+              <button onClick={handleSignOut} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Sign out">
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth">
+              <Button size="sm" className="gradient-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-shadow">
+                Get Early Access
+              </Button>
+            </Link>
+          )}
 
           <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

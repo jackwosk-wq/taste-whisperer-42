@@ -1,59 +1,93 @@
 import { useState } from "react";
-import ChatPanel from "@/components/ChatPanel";
-import RestaurantCard from "@/components/RestaurantCard";
-
-import MapView from "@/components/MapView";
-import { restaurants, getRestaurantsByCity, type City } from "@/data/restaurants";
+import { motion } from "framer-motion";
+import { GodRays } from "@paper-design/shaders-react";
+import { useAuth } from "@/context/AuthContext";
+import { PromptInputBox } from "@/components/ui/ai-prompt-box";
+import type { City } from "@/data/restaurants";
 
 interface DiscoverPageProps {
   selectedCity: City;
   onCityChange: (city: City) => void;
 }
 
-export default function DiscoverPage({ selectedCity, onCityChange }: DiscoverPageProps) {
-  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
+export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const firstName = user?.name?.split(" ")[0] || "there";
 
-  const cityRestaurants = getRestaurantsByCity(selectedCity);
-  const displayRestaurants = highlightedIds.length > 0
-    ? restaurants.filter(r => highlightedIds.includes(r.id))
-    : cityRestaurants.length > 0
-      ? cityRestaurants
-      : restaurants.slice(0, 4);
+  const handleSend = (message: string) => {
+    if (!message.trim()) return;
+    setIsLoading(true);
+    // TODO: connect to GPT-4o
+    setTimeout(() => setIsLoading(false), 1500);
+  };
 
   return (
-    <div>
-      
+    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden">
 
-      <section id="discover" className="container pb-16 space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Chat Panel */}
-          <div className="lg:col-span-2">
-            <ChatPanel onRestaurantResults={setHighlightedIds} />
-          </div>
+      {/* God Rays — warm amber tones, very subtle */}
+      <div className="absolute inset-0 pointer-events-none">
+        <GodRays
+          colorBack="#00000000"
+          colors={["#C2622A30", "#C49A2A25", "#8B3A0F20", "#F7F3EE15"]}
+          colorBloom="#C2622A"
+          offsetX={0.8}
+          offsetY={-0.9}
+          intensity={0.35}
+          spotty={0.4}
+          midSize={12}
+          midIntensity={0}
+          density={0.32}
+          bloom={0.25}
+          speed={0.4}
+          scale={1.5}
+          style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}
+        />
+      </div>
 
-          {/* Restaurant Results */}
-          <div className="lg:col-span-3 space-y-6">
-            <div>
-              <h2 className="text-2xl font-heading font-bold text-foreground">
-                {highlightedIds.length > 0 ? "Tasterra Picks" : `Top Spots in ${selectedCity}`}
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {highlightedIds.length > 0
-                  ? "Based on your conversation"
-                  : "Curated by our AI food brain"}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {displayRestaurants.map((r, i) => (
-                <RestaurantCard key={r.id} restaurant={r} index={i} />
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-8">
 
-        {/* Map View */}
-        <MapView restaurants={displayRestaurants} />
-      </section>
+        {/* Greeting — fades in first */}
+        <motion.div
+          className="text-center space-y-3"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <h1 className="text-4xl sm:text-5xl font-heading font-bold gradient-text">
+            Hey {firstName} 👋
+          </h1>
+          <p className="text-muted-foreground text-base sm:text-lg">
+            Where are you eating tonight? Ask me anything.
+          </p>
+        </motion.div>
+
+        {/* Prompt box — fades in second, slightly delayed */}
+        <motion.div
+          className="w-full"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.18 }}
+        >
+          <PromptInputBox
+            onSend={handleSend}
+            isLoading={isLoading}
+            placeholder={`Find me a great spot in ${selectedCity}…`}
+            className="w-full"
+          />
+        </motion.div>
+
+        {/* Footer hint — fades in last */}
+        <motion.p
+          className="text-xs text-muted-foreground/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
+        >
+          Powered by Tasterra AI · {selectedCity}
+        </motion.p>
+      </div>
     </div>
   );
 }

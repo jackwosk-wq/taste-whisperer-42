@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
-import { welcomeMessage, mockConversations, type ChatMessage } from "@/data/chatResponses";
+import { mockConversations, type ChatMessage } from "@/data/chatResponses";
+import { useAuth } from "@/context/AuthContext";
 
 interface ChatPanelProps {
   onRestaurantResults?: (ids: string[]) => void;
@@ -15,7 +16,17 @@ const vibeChips = [
 ];
 
 export default function ChatPanel({ onRestaurantResults }: ChatPanelProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([welcomeMessage]);
+  const { user, onboarding } = useAuth();
+
+  const personalizedWelcome: ChatMessage = {
+    id: "welcome",
+    role: "assistant",
+    content: onboarding
+      ? `Hey ${user?.name?.split(" ")[0] || "there"}! Based on your love of ${onboarding.cuisines.slice(0, 3).join(", ")} and your favorites in ${onboarding.city}, I already have a feel for your taste. 🍽️\n\nWhat are you in the mood for today? A hidden gem? A romantic dinner? Or just something that'll make your night?`
+      : `Hey! I'm your Tasterra guide — think of me as that friend who's eaten everywhere and remembers every dish. 🍽️\n\nTell me what you're in the mood for. A romantic spot? A hidden gem your foodie friends don't know about? Late-night eats?\n\nWhat sounds good?`,
+  };
+
+  const [messages, setMessages] = useState<ChatMessage[]>([personalizedWelcome]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,7 +84,7 @@ export default function ChatPanel({ onRestaurantResults }: ChatPanelProps) {
             >
               {msg.content.split("\n").map((line, i) => (
                 <p key={i} className={i > 0 ? "mt-2" : ""}>
-                  {line.split(/(\*\*[^*]+\*\*)/).map((part, j) =>
+                  {line.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/).map((part, j) =>
                     part.startsWith("**") && part.endsWith("**") ? (
                       <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>
                     ) : part.startsWith("*") && part.endsWith("*") ? (

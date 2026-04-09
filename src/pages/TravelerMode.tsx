@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plane, RefreshCw, Users, Calendar, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RestaurantCard from "@/components/RestaurantCard";
-import { restaurants, cities, type City } from "@/data/restaurants";
+import { restaurants, getRestaurantsByCity, cities, type City } from "@/data/restaurants";
 
 interface MealSlot {
   meal: string;
@@ -21,7 +21,8 @@ export default function TravelerMode() {
   const [itinerary, setItinerary] = useState<DayPlan[]>([]);
 
   const generateItinerary = () => {
-    const pool = restaurants.length > 0 ? restaurants : [];
+    const cityPool = getRestaurantsByCity(city);
+    const pool = cityPool.length > 0 ? cityPool : restaurants;
     const plans: DayPlan[] = [];
     for (let d = 1; d <= days; d++) {
       plans.push({
@@ -40,7 +41,9 @@ export default function TravelerMode() {
   const regenerateMeal = (dayIndex: number, mealIndex: number) => {
     setItinerary(prev => {
       const copy = [...prev];
-      const randomR = restaurants[Math.floor(Math.random() * restaurants.length)];
+      const cityPool = getRestaurantsByCity(city);
+      const pool = cityPool.length > 0 ? cityPool : restaurants;
+      const randomR = pool[Math.floor(Math.random() * pool.length)];
       copy[dayIndex] = {
         ...copy[dayIndex],
         meals: copy[dayIndex].meals.map((m, i) =>

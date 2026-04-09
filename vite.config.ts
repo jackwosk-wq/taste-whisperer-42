@@ -11,6 +11,28 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      // Legacy Places API (kept as fallback)
+      "/places-proxy": {
+        target: "https://maps.googleapis.com/maps/api/place",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/places-proxy/, ""),
+      },
+      // Places API (New) — autocomplete, details, photos
+      "/places-new": {
+        target: "https://places.googleapis.com",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/places-new/, "/v1"),
+      },
+      // Yelp Fusion API — price fallback
+      "/yelp-proxy": {
+        target: "https://api.yelp.com/v3",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/yelp-proxy/, ""),
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
