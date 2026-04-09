@@ -13,7 +13,7 @@ interface DiscoverPageProps {
 export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const firstName = user?.name?.split(" ")[0] || "there";
+  const firstName = user?.name ? user.name.split(" ")[0].charAt(0).toUpperCase() + user.name.split(" ")[0].slice(1) : "there";
 
   const handleSend = (message: string) => {
     if (!message.trim()) return;
@@ -23,7 +23,7 @@ export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
   };
 
   return (
-    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-4 overflow-hidden text-sm">
 
       {/* God Rays — warm amber tones, very subtle */}
       <div className="absolute inset-0 pointer-events-none">
@@ -55,10 +55,10 @@ export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <h1 className="text-4xl sm:text-5xl font-heading font-bold gradient-text">
-            Hey {firstName} 👋
+          <h1 className="text-4xl sm:text-5xl font-heading font-bold gradient-text text-center">
+            Hey {firstName}!
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg font-serif">
             Where are you eating tonight? Ask me anything.
           </p>
         </motion.div>
@@ -85,7 +85,7 @@ export default function DiscoverPage({ selectedCity }: DiscoverPageProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
         >
-          Powered by Tasterra AI · {selectedCity}
+          Powered by Tasterra AI
         </motion.p>
       </div>
     </div>
