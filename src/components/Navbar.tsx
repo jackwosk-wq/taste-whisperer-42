@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { MapPin, Moon, Sun, Heart, Compass, Menu, X, LogOut } from "lucide-react";
+import { MapPin, Moon, Sun, Heart, Compass, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cities, type City } from "@/data/restaurants";
 import { useAuth } from "@/context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   selectedCity: City;
@@ -13,6 +14,8 @@ interface NavbarProps {
 export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  const cityDropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -21,6 +24,17 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
     signOut();
     navigate("/auth");
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target as Node)) {
+        setCityDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleDark = () => {
     setDark(!dark);
@@ -58,23 +72,47 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* City selector */}
-          <div className="hidden sm:block relative group">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-sm font-medium text-foreground transition-colors hover:bg-muted/80">
+          {/* City selector dropdown */}
+          <div className="hidden sm:block relative" ref={cityDropdownRef}>
+            <button
+              onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
+            >
               <MapPin className="h-3.5 w-3.5 text-primary" />
               {selectedCity}
+              <motion.div
+                animate={{ rotate: cityDropdownOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              </motion.div>
             </button>
-            <div className="absolute top-full right-0 mt-1 min-w-[140px] rounded-lg border border-border bg-popover shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-1 z-50">
-              {cities.filter(city => city !== selectedCity).map(city => (
-                <button
-                  key={city}
-                  onClick={() => onCityChange(city)}
-                  className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            <AnimatePresence>
+              {cityDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto", transition: { height: { duration: 0.4 }, staggerChildren: 0.08 } }}
+                  exit={{ opacity: 0, height: 0, transition: { height: { duration: 0.3 }, opacity: { duration: 0.2 } } }}
+                  className="absolute top-full right-0 mt-1 min-w-[160px] rounded-lg border border-border bg-popover shadow-lg overflow-hidden z-50"
                 >
-                  {city}
-                </button>
-              ))}
-            </div>
+                  <div className="py-1">
+                    {cities.filter(city => city !== selectedCity).map((city, i) => (
+                      <motion.button
+                        key={city}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: i * 0.08 } }}
+                        exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+                        onClick={() => { onCityChange(city); setCityDropdownOpen(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2"
+                      >
+                        <MapPin className="h-3 w-3" />
+                        {city}
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <button onClick={toggleDark} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
