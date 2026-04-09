@@ -33,8 +33,11 @@ const mealIcons = {
 export default function TravelerMode() {
   const [city, setCity] = useState<City>("NYC");
   const [days, setDays] = useState(3);
-  const [generated, setGenerated] = useState(false);
-  const [itinerary, setItinerary] = useState<DayPlan[]>([]);
+  const [guests, setGuests] = useState(2);
+  const [daysDropdownOpen, setDaysDropdownOpen] = useState(false);
+  const [guestsDropdownOpen, setGuestsDropdownOpen] = useState(false);
+  const daysRef = useRef<HTMLDivElement>(null);
+  const guestsRef = useRef<HTMLDivElement>(null);
 
   const generateItinerary = () => {
     const cityPool = getRestaurantsByCity(city);
