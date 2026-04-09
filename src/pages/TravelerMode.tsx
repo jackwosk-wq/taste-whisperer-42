@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plane, RefreshCw, Calendar, Utensils, MapPin, Sparkles, ChevronRight, Coffee, Sun, Moon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Plane, RefreshCw, Calendar, Utensils, MapPin, Sparkles, ChevronRight, Coffee, Sun, Moon, ChevronDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RestaurantCard from "@/components/RestaurantCard";
 import { restaurants, getRestaurantsByCity, cities, type City } from "@/data/restaurants";
