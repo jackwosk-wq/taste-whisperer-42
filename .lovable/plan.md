@@ -1,46 +1,25 @@
 
 
-# Add Scroll Animations & Testimonial Section to Landing Page
+# Convert City Selector to Dropdown Menu
 
-## What we're building
-- Intersection Observer-based scroll animations so sections fade/slide in as users scroll
-- A testimonial section between Features and the page footer with 3 editorial-style quotes
+## What changes
+Replace the horizontal pill bar city selector in the Navbar with a hover-activated dropdown menu. The currently selected city is shown as a button; hovering reveals a vertical list of other cities.
 
-## Plan
+## Implementation
 
-### 1. Create a reusable scroll animation hook
-**New file: `src/hooks/useScrollAnimation.ts`**
-- Custom hook using `IntersectionObserver` to detect when elements enter the viewport
-- Returns a ref and a boolean `isVisible` state
-- Configurable threshold (default 0.15)
+### Edit `src/components/Navbar.tsx`
 
-### 2. Create an animated wrapper component
-**New file: `src/components/ScrollReveal.tsx`**
-- Wraps children in a div that applies opacity/translate transitions when visible
-- Props: `delay`, `direction` (up/left/right), `className`
-- Uses CSS transitions (not keyframes) for smooth scroll-triggered animation
+**Desktop city selector (line 62-76):** Replace the horizontal `div` with a relative-positioned container that uses hover to show/hide a dropdown:
 
-### 3. Update the landing page (`src/pages/Index.tsx`)
-- Wrap each feature card and the new testimonial cards in `<ScrollReveal>`
-- Add staggered delays to feature cards (0ms, 150ms, 300ms)
+- **Trigger**: A button showing `MapPin` icon + selected city name, styled with the existing muted pill look
+- **Dropdown**: An absolute-positioned vertical list that appears on hover (`group` + `group-hover:block` pattern or a small state toggle). Contains all cities except the selected one, each as a clickable row
+- Use Tailwind `group`/`group-hover:` classes for pure CSS hover behavior (no extra state needed)
+- Dropdown styled with `bg-popover border rounded-lg shadow-lg` to match the app's design tokens
+- Each city option gets hover highlight (`hover:bg-muted`)
 
-**New Testimonial Section** (between Features and page end):
-- Section heading: "What food lovers are saying"
-- 3 testimonial cards in a responsive grid, each with:
-  - Quote text (editorial, on-brand tone)
-  - Author name, city, and avatar placeholder
-- Example quotes:
-  - "Tasterra found me a hidden ramen spot in the East Village I never would've discovered on my own. It's like having a friend who's eaten everywhere." — Maya R., NYC
-  - "I used Traveler Mode for my Chicago trip and every single meal was a hit. No more wasting a dinner on a tourist trap." — James K., DC
-  - "The vibe matching is unreal. I said 'cozy date night' and it nailed it on the first try." — Sofia L., LA
+**Mobile menu (line ~120-135):** Keep the existing city pills in the mobile menu — no changes needed there.
 
-### 4. Add scroll animation CSS to `src/index.css`
-- Add utility classes for scroll reveal transitions:
-  - `.scroll-reveal`: base state (opacity 0, translateY 20px, transition 0.6s)
-  - `.scroll-reveal.visible`: visible state (opacity 1, translateY 0)
+### No new files or dependencies needed
 
-## Technical details
-- No external animation library needed — pure Intersection Observer + CSS transitions
-- Testimonial avatars use the existing Avatar component with colored fallback initials
-- All new sections respect dark mode via existing Tailwind tokens
+Uses existing `MapPin` icon import and Tailwind utilities only.
 
