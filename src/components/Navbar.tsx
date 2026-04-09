@@ -25,6 +25,17 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
     navigate("/auth");
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target as Node)) {
+        setCityDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const toggleDark = () => {
     setDark(!dark);
     document.documentElement.classList.toggle("dark");
