@@ -59,20 +59,22 @@ export default function Navbar({ selectedCity, onCityChange }: NavbarProps) {
 
         <div className="flex items-center gap-3">
           {/* City selector */}
-          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted p-1">
-            {cities.map(city => (
-              <button
-                key={city}
-                onClick={() => onCityChange(city)}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
-                  selectedCity === city
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {city}
-              </button>
-            ))}
+          <div className="hidden sm:block relative group">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-sm font-medium text-foreground transition-colors hover:bg-muted/80">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              {selectedCity}
+            </button>
+            <div className="absolute top-full right-0 mt-1 min-w-[140px] rounded-lg border border-border bg-popover shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-1 z-50">
+              {cities.filter(city => city !== selectedCity).map(city => (
+                <button
+                  key={city}
+                  onClick={() => onCityChange(city)}
+                  className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
           </div>
 
           <button onClick={toggleDark} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
