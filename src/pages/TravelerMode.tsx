@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plane, RefreshCw, Calendar, Utensils, MapPin, Sparkles, ChevronRight, Coffee, Sun, Moon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Plane, RefreshCw, Calendar, Utensils, MapPin, Sparkles, ChevronRight, Coffee, Sun, Moon, ChevronDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RestaurantCard from "@/components/RestaurantCard";
 import { restaurants, getRestaurantsByCity, cities, type City } from "@/data/restaurants";
@@ -35,6 +35,21 @@ export default function TravelerMode() {
   const [days, setDays] = useState(3);
   const [generated, setGenerated] = useState(false);
   const [itinerary, setItinerary] = useState<DayPlan[]>([]);
+  const [guests, setGuests] = useState(2);
+  const [daysDropdownOpen, setDaysDropdownOpen] = useState(false);
+  const [guestsDropdownOpen, setGuestsDropdownOpen] = useState(false);
+  const daysRef = useRef<HTMLDivElement>(null);
+  const guestsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (daysRef.current && !daysRef.current.contains(e.target as Node)) setDaysDropdownOpen(false);
+      if (guestsRef.current && !guestsRef.current.contains(e.target as Node)) setGuestsDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const generateItinerary = () => {
     const cityPool = getRestaurantsByCity(city);
@@ -160,29 +175,92 @@ export default function TravelerMode() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            {/* Duration Dropdown */}
             <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block flex items-center gap-1.5">
+              <label className="text-sm font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-primary" /> Duration
               </label>
-              <select
-                value={days}
-                onChange={e => setDays(Number(e.target.value))}
-                className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring font-medium"
-              >
-                {[1, 2, 3, 4, 5, 7].map(d => (
-                  <option key={d} value={d}>{d} {d === 1 ? "day" : "days"}</option>
-                ))}
-              </select>
+              <div className="relative" ref={daysRef}>
+                <button
+                  onClick={() => { setDaysDropdownOpen(!daysDropdownOpen); setGuestsDropdownOpen(false); }}
+                  className="w-full flex items-center justify-between rounded-xl border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors"
+                >
+                  <span>{days} {days === 1 ? "day" : "days"}</span>
+                  <motion.div animate={{ rotate: daysDropdownOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </motion.div>
+                </button>
+                <AnimatePresence>
+                  {daysDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto", transition: { height: { duration: 0.4 }, staggerChildren: 0.08 } }}
+                      exit={{ opacity: 0, height: 0, transition: { height: { duration: 0.3 }, opacity: { duration: 0.2 } } }}
+                      className="absolute top-full left-0 right-0 mt-1 rounded-xl border border-border bg-popover shadow-lg overflow-hidden z-50"
+                    >
+                      <div className="py-1">
+                        {[1, 2, 3, 4, 5, 7].filter(d => d !== days).map((d, i) => (
+                          <motion.button
+                            key={d}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: i * 0.08 } }}
+                            exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+                            onClick={() => { setDays(d); setDaysDropdownOpen(false); }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2"
+                          >
+                            <Calendar className="h-3 w-3" />
+                            {d} {d === 1 ? "day" : "days"}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
+
+            {/* Guests Dropdown */}
             <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-primary" /> Guests
+              <label className="text-sm font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-primary" /> Guests
               </label>
-              <select className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring font-medium">
-                {[1, 2, 3, 4, 5, 6].map(g => (
-                  <option key={g} value={g}>{g} {g === 1 ? "guest" : "guests"}</option>
-                ))}
-              </select>
+              <div className="relative" ref={guestsRef}>
+                <button
+                  onClick={() => { setGuestsDropdownOpen(!guestsDropdownOpen); setDaysDropdownOpen(false); }}
+                  className="w-full flex items-center justify-between rounded-xl border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-muted/50 transition-colors"
+                >
+                  <span>{guests} {guests === 1 ? "guest" : "guests"}</span>
+                  <motion.div animate={{ rotate: guestsDropdownOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </motion.div>
+                </button>
+                <AnimatePresence>
+                  {guestsDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto", transition: { height: { duration: 0.4 }, staggerChildren: 0.08 } }}
+                      exit={{ opacity: 0, height: 0, transition: { height: { duration: 0.3 }, opacity: { duration: 0.2 } } }}
+                      className="absolute top-full left-0 right-0 mt-1 rounded-xl border border-border bg-popover shadow-lg overflow-hidden z-50"
+                    >
+                      <div className="py-1">
+                        {[1, 2, 3, 4, 5, 6].filter(g => g !== guests).map((g, i) => (
+                          <motion.button
+                            key={g}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: i * 0.08 } }}
+                            exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+                            onClick={() => { setGuests(g); setGuestsDropdownOpen(false); }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-2"
+                          >
+                            <Users className="h-3 w-3" />
+                            {g} {g === 1 ? "guest" : "guests"}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
