@@ -33,11 +33,23 @@ const mealIcons = {
 export default function TravelerMode() {
   const [city, setCity] = useState<City>("NYC");
   const [days, setDays] = useState(3);
+  const [generated, setGenerated] = useState(false);
+  const [itinerary, setItinerary] = useState<DayPlan[]>([]);
   const [guests, setGuests] = useState(2);
   const [daysDropdownOpen, setDaysDropdownOpen] = useState(false);
   const [guestsDropdownOpen, setGuestsDropdownOpen] = useState(false);
   const daysRef = useRef<HTMLDivElement>(null);
   const guestsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (daysRef.current && !daysRef.current.contains(e.target as Node)) setDaysDropdownOpen(false);
+      if (guestsRef.current && !guestsRef.current.contains(e.target as Node)) setGuestsDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const generateItinerary = () => {
     const cityPool = getRestaurantsByCity(city);
